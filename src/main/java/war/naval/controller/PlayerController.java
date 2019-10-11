@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import war.naval.model.Player;
 import war.naval.repository.PlayerRepository;
 
-@Controller()
+@Controller
+@CrossOrigin
 public class PlayerController {
 
 	@Autowired
@@ -22,9 +24,7 @@ public class PlayerController {
 	@ResponseBody
 	@PostMapping("/player/create")
 	private Player create(Player player) {
-
 		return playerRepository.save(player);
-
 	}
 
 	@ResponseBody
@@ -45,13 +45,13 @@ public class PlayerController {
 	private Player retrieve(Optional<Long> id, Optional<String> username) {
 
 		Player player = null;
-		
+
 		if (id.isPresent()) {
 			player = playerRepository.findOne(id.get());
-		}else if (id.isPresent()) {
+		} else if (id.isPresent()) {
 			player = playerRepository.findByUsername(username.get());
 		}
-		
+
 		return player;
 
 	}
@@ -59,7 +59,7 @@ public class PlayerController {
 	@ResponseBody
 	@DeleteMapping("/player/delete")
 	private void remove(Long... ids) {
-		
+
 		for (Long idPlayer : ids) {
 			playerRepository.delete(idPlayer);
 		}

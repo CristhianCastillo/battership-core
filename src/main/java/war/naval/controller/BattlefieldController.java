@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,8 @@ import war.naval.repository.GameRepository;
 import war.naval.repository.PlayerRepository;
 import war.naval.util.MessageResponse;
 
-@Controller()
+@Controller
+@CrossOrigin
 public class BattlefieldController {
 
 	@Autowired
@@ -72,7 +74,7 @@ public class BattlefieldController {
 			return new MessageResponse("OK", battlefields);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new MessageResponse("EROOR", e.getMessage());
+			return new MessageResponse("ERROR", e.getMessage());
 		}
 	}
 
@@ -87,10 +89,10 @@ public class BattlefieldController {
 				throw new Exception("El juego ya fue ganado por el jugador: " + game.getWon().getUsername());
 			Player turnPlayer = game.getTurn();
 			if (turnPlayer == null || turnPlayer.getId() == null)
-				throw new Exception("Este juego no tiene un turno asignado!");
+				throw new Exception("Este juego no tiene un turno asignado! Faltan Jugadores!");
 			Player player = playerRepository.findByUsername(username);
 			if (player == null || player.getId() == null)
-				throw new Exception("El jugador no existe");
+				throw new Exception("El jugador que realiza el ataque no existe");
 			Player opponent = null;
 			if (game.getPlayer() == player) {
 				opponent = game.getOpponent();
@@ -102,7 +104,7 @@ public class BattlefieldController {
 				throw new Exception("La coordenada no existe!! Otro Planeta!!");
 			Battlefield battlefield = battlefieldRepository.findByGameAndFieldAndPlayer(game, field, opponent);
 			if (battlefield == null || battlefield.getId() == null)
-				throw new Exception("El campo de juego no existe!!!");
+				throw new Exception("El jugador oponente no ha registrado su posición!!");
 			if (battlefield.getImpact() != null && battlefield.getImpact()) {
 				throw new Exception("La posición ya fue impactada!!");
 			}
@@ -111,9 +113,6 @@ public class BattlefieldController {
 			battlefieldRepository.save(battlefield);
 			game.setTurn(opponent);
 			game = gameRepository.save(game);
-
-			// know if player win!! --> search player enemy, with game, with ship eq true
-			// if impact for all is true --- ypu win!!
 
 			List<Battlefield> listOponnet = battlefieldRepository.findByGameAndPlayer(game, opponent);
 			List<Battlefield> listOponnetWithShips = new ArrayList<Battlefield>();
@@ -143,7 +142,7 @@ public class BattlefieldController {
 			return new MessageResponse("OK", bodyCustom);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new MessageResponse("EROOR", e.getMessage());
+			return new MessageResponse("ERROR", e.getMessage());
 		}
 	}
 
@@ -159,7 +158,7 @@ public class BattlefieldController {
 			return new MessageResponse("OK", ships);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new MessageResponse("EROOR", e.getMessage());
+			return new MessageResponse("ERROR", e.getMessage());
 		}
 	}
 
@@ -176,13 +175,14 @@ public class BattlefieldController {
 			}
 		}
 
-//		if (count > 20 || count < 20) {
-//			throw new Exception("Los barcos son obligatorios. Deben ser 20.");
-//		}
-
-		if (count > 2 || count < 2) {
-			throw new Exception("Los barcos son obligatorios. Deben ser 2.");
+		if (count > 20 || count < 20) {
+			throw new Exception("Los barcos son obligatorios. Deben ser 20.");
 		}
+		
+//		Just for test 
+//		if (count > 2 || count < 2) {
+//			throw new Exception("Los barcos son obligatorios. Deben ser 2.");
+//		}
 
 	}
 
